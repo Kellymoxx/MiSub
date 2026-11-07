@@ -309,7 +309,35 @@ export class ProcessorService {
                 headers['X-MiSub-Template-Mode'] = 'clash-yaml-profile';
             }
         }
+        // Clash/Mihomo 输出统一使用 Chrome
+        if (targetFormat === 'clash') {
+            const clashConfig = yaml.load(finalContent);
 
+            if (clashConfig && Array.isArray(clashConfig.proxies)) {
+                for (const proxy of clashConfig.proxies) {
+                    if (!proxy || typeof proxy !== 'object') continue;
+
+                    if (proxy.tls === true || proxy['reality-opts']) {
+                        proxy['client-fingerprint'] = 'chrome';
+                    }
+
+                    if (proxy['reality-opts']) {
+                        proxy['reality-opts']['support-x25519mlkem768'] = true;
+                    }
+                }
+
+                const subscribedHeader =
+                    finalContent.match(/^#SUBSCRIBED[^\r\n]*(?:\r?\n|$)/);
+
+                finalContent =
+                    (subscribedHeader ? subscribedHeader[0] : '') +
+                    yaml.dump(clashConfig, {
+                        indent: 2,
+                        lineWidth: -1,
+                        noRefs: true,
+                    });
+            }
+        }
         // Set proper content type for built-in formats if not set by template
         if (contentType === 'text/plain; charset=utf-8') {
             if (targetFormat === 'clash' || targetFormat === 'egern')
