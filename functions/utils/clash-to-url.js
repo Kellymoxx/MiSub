@@ -189,7 +189,8 @@ export function convertClashProxyToUrl(proxy) {
         if (type === 'vless') {
             const uuid = proxy.uuid || proxy.UUID;
             if (!uuid) return null;
-            const params = ['encryption=none'];
+            const encryption = proxy.encryption || 'none';
+            const params = [`encryption=${encodeURIComponent(encryption)}`];
             if (proxy.network) params.push(`type=${proxy.network}`);
             const wsOpts = proxy.wsOpts || proxy['ws-opts'];
             if (wsOpts) {
