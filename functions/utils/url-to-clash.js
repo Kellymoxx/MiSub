@@ -147,7 +147,11 @@ function parseVlessUrl(url) {
             port,
             uuid,
         };
-
+        // 保留 VLESS Encryption，与 TLS/REALITY 指纹独立。
+        const encryption = params.get('encryption');
+        if (encryption && encryption !== 'none') {
+            proxy.encryption = encryption;
+        }
         // 网络类型
         const network = params.get('type') || 'tcp';
         if (network !== 'tcp') {
